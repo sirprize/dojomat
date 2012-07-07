@@ -4,7 +4,7 @@ Core components for single page apps based on the dojo widget architecture and h
 
 ## Introduction
 
-Dojod is a set of mixins providing a framework for single page apps based on the [history API](https://developer.mozilla.org/en/DOM/Manipulating_the_browser_history/) on top of the [Dojo widget](http://dojotoolkit.org/documentation/tutorials/1.7/templated/) architecture. Request routing is handled by [spirr](https://github.com/sirprize/spirr)
+Dojod is a set of mixins providing a framework for single page apps based on the [History API](https://developer.mozilla.org/en/DOM/Manipulating_the_browser_history/) on top of the [Dojo widget](http://dojotoolkit.org/documentation/tutorials/1.7/templated/) architecture. Request routing is handled by [Spirr](https://github.com/sirprize/spirr). Currently there is no fallback behavior for hash-base routing but this probably wouldn't be too hard to implement - most likely, this functionality would go into _App.handleState() and _Partial.go()
 
 ## _App
 
