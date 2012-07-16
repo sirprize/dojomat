@@ -12,12 +12,12 @@ The `_App` mixin is the entry point into your application. It dispatches the cur
 
     define([
         "dojo/_base/declare",
-        "dojo/ready",
+        "dojo/_base/lang",
         "sirprize/dojod/_App"
         "dojo/domReady!"
     ], function(
         declare,
-        ready,
+        lang,
         App
     ) {
         var map = {
@@ -29,26 +29,29 @@ The `_App` mixin is the entry point into your application. It dispatches the cur
         return declare([App], {
 
             constructor: function() {
-                var that = this;
+                this.init(map);
+            },
 
-                ready(function() {
-                    that.setRoutes(map);
-                    that.setSubscriptions();
-                    that.handlePopState();
-                    that.setHasHistory();
-                    that.handleState();
-                });
+            makeNotFoundPage: function() {
+                var makePage = function(Page) {
+                    this.setPageNode();
+
+                    var page = new Page({ router: this.router, error: {} }, 'page');
+                    page.startup();
+                }
+
+                require(['kompakt/backend/page/error-page/ErrorPage'], lang.hitch(this, makePage));
             },
 
             makeErrorPage: function(message) {
-                var that = this;
+                var makePage = function(Page) {
+                    this.setPageNode();
 
-                require(['my/ErrorPageWidget'], function(Page) {
-                    that.setPageNode();
-
-                    var page = new Page({ router: that.router, message: message }, 'page');
+                    var page = new Page({ router: this.router, message: message }, 'page');
                     page.startup();
-                });
+                }
+
+                require(['sirprize/dojo-spa/page/error-page/ErrorPage'], lang.hitch(this, makePage));
             }
         });
     });
