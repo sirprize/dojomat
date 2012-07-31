@@ -13,7 +13,7 @@ The `_App` mixin is the entry point into your application. It dispatches the cur
     define([
         "dojo/_base/declare",
         "dojo/_base/lang",
-        "sirprize/dojod/_App"
+        "dojod/_App"
         "dojo/domReady!"
     ], function(
         declare,

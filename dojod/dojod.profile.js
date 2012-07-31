@@ -1,8 +1,8 @@
 var profile = (function(){
     var copyOnly = function(filename, mid){
         var list = {
-            "sirprize/dojod/sirprize.dojod.profile": 1,
-            "sirprize/dojod/package.json": 1
+            "dojod/dojod.profile": 1,
+            "dojod/package.json": 1
         };
         return (mid in list);
     };

@@ -19,7 +19,7 @@ define([
                 return;
             }
             
-            topic.publish('sirprize/dojod/_Partial/push-state', {
+            topic.publish('dojod/_Partial/push-state', {
                 state: {},
                 title: '',
                 url: url

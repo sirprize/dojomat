@@ -1,6 +1,6 @@
 {
-    "name": "sirprize/dojod",
+    "name": "dojod",
     "description": "Core components for single page apps based on the dojo widget architecture and history API",
     "version": 0.1,
-    "dojoBuild": "sirprize.dojod.profile.js"
+    "dojoBuild": "dojod.profile.js"
 }

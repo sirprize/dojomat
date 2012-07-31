@@ -14,19 +14,23 @@ define([
         request: null,
         
         setPageStyle: function(css) {
-            topic.publish('sirprize/dojod/_Page/css', { css: css });
+            topic.publish('dojod/_Page/css', { css: css });
         },
         
         setPageTitle: function(title) {
-            topic.publish('sirprize/dojod/_Page/title', { title: title });
+            topic.publish('dojod/_Page/title', { title: title });
+        },
+
+        setNotification: function(message, type) {
+            topic.publish('dojod/_Page/notification', { message: message, type: type });
         },
         
         handleNotFound: function() {
-            topic.publish('sirprize/dojod/_Page/not-found', {});
+            topic.publish('dojod/_Page/not-found', {});
         },
         
         handleError: function(error) {
-            topic.publish('sirprize/dojod/_Page/error', error);
+            topic.publish('dojod/_Page/error', error);
         }
     });
 });

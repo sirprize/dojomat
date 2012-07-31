@@ -1,10 +1,11 @@
 define([
-    "sirprize/spirr/Request",
-    "sirprize/spirr/Router",
-    "sirprize/spirr/Route",
+    "spirr/Request",
+    "spirr/Router",
+    "spirr/Route",
     "dijit/registry",
     "dojo/_base/declare",
     "dojo/_base/lang",
+    "dojo/_base/json",
     "dojo/ready",
     "dojo/has",
     "dojo/on",
@@ -19,6 +20,7 @@ define([
     registry,
     declare,
     lang,
+    json,
     ready,
     has,
     on,
@@ -121,29 +123,54 @@ define([
             require([widget], lang.hitch(this, function(Page) {
                 this.setPageNode();
                 
-                var page = new Page({ request: request, router: this.router }, 'page');
+                var page = new Page({
+                    request: request,
+                    router: this.router,
+                    notification: this.getNotification()
+                }, 'page');
                 page.startup();
             }));
         },
+
+        getNotification: function() {
+            // todo: add expiration mechanism (eg 5 seconds)
+
+            if(has('native-localstorage')) {
+                return json.fromJson(localStorage.getItem('dojod-notification'));
+            }
+            else {
+                // todo: cookie fallback
+                return null;
+            }
+        },
         
         setSubscriptions: function() {
-            topic.subscribe('sirprize/dojod/_Page/css', lang.hitch(this, function(args) {
+            topic.subscribe('dojod/_Page/css', lang.hitch(this, function(args) {
                 this.setStyle(args.css);
             }));
 
-            topic.subscribe('sirprize/dojod/_Page/title', function(args) {
+            topic.subscribe('dojod/_Page/title', function(args) {
                 window.document.title = args.title;
             });
 
-            topic.subscribe('sirprize/dojod/_Page/error', lang.hitch(this, function(error) {
+            topic.subscribe('dojod/_Page/notification', function(notification) {
+                if(has('native-localstorage')) {
+                    localStorage.setItem('dojod-notification', json.toJson(notification));
+                }
+                else {
+                    // todo: cookie fallback
+                }
+            });
+
+            topic.subscribe('dojod/_Page/error', lang.hitch(this, function(error) {
                 this.makeErrorPage(error);
             }));
 
-            topic.subscribe('sirprize/dojod/_Page/not-found', lang.hitch(this, function() {
+            topic.subscribe('dojod/_Page/not-found', lang.hitch(this, function() {
                 this.makeNotFoundPage();
             }));
 
-            topic.subscribe('sirprize/dojod/_Partial/push-state', lang.hitch(this, function(args) {
+            topic.subscribe('dojod/_Partial/push-state', lang.hitch(this, function(args) {
                 history.pushState(args.state, args.title, args.url);
                 this.handleState();
             }));
