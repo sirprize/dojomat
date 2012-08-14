@@ -4,15 +4,15 @@
 define([
     "dojo/_base/declare",
     "dojo/topic",
-    "./_Partial"
+    "./_Widget"
 ], function (
     declare,
     topic,
-    Partial
+    Widget
 ) {
     "use strict";
 
-    return declare([Partial], {
+    return declare([Widget], {
 
         // constructor args
         router: null,

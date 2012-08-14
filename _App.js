@@ -176,7 +176,7 @@ define([
                 this.makeNotFoundPage();
             }));
 
-            topic.subscribe('dojod/_Partial/push-state', lang.hitch(this, function (args) {
+            topic.subscribe('dojod/_Widget/push-state', lang.hitch(this, function (args) {
                 history.pushState(args.state, args.title, args.url);
                 this.handleState();
             }));

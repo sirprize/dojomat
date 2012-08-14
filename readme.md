@@ -4,7 +4,7 @@ Core components for single page apps based on the dojo widget architecture and h
 
 ## Introduction
 
-Dojod is a set of mixins providing a framework for single page apps based on the [History API](https://developer.mozilla.org/en/DOM/Manipulating_the_browser_history/) on top of the [Dojo widget](http://dojotoolkit.org/documentation/tutorials/1.7/templated/) architecture. Request routing is handled by [Routed](https://github.com/sirprize/routed). Currently there is no fallback behavior for hash-base routing but this probably wouldn't be too hard to implement - most likely, this functionality would go into _App.handleState() and _Partial.go()
+Dojod is a set of mixins providing a framework for single page apps based on the [History API](https://developer.mozilla.org/en/DOM/Manipulating_the_browser_history/) on top of the [Dojo widget](http://dojotoolkit.org/documentation/tutorials/1.7/templated/) architecture. Request routing is handled by [Routed](https://github.com/sirprize/routed). Currently there is no fallback behavior for hash-base routing but this probably wouldn't be too hard to implement - most likely, this functionality would go into _App.handleState() and _Widget.go()
 
 ## _App
 
@@ -21,9 +21,9 @@ The `_App` mixin is the entry point into your application. It dispatches the cur
         App
     ) {
         var map = {
-            home: { schema: '/', widget: 'my/HomePageWidget' },
-            releases: { schema: '/releases/', widget: 'my/ReleasesPageWidget' },
-            release: { schema: '/release/:id', widget: 'my/ReleasePageWidget' }
+            home: { schema: '/', widget: 'my/HomePage' },
+            releases: { schema: '/releases/', widget: 'my/ReleaseIndexPage' },
+            release: { schema: '/release/:id', widget: 'my/ReleaseDetailPage' }
         };
         
         return declare([App], {
@@ -36,22 +36,30 @@ The `_App` mixin is the entry point into your application. It dispatches the cur
                 var makePage = function(Page) {
                     this.setPageNode();
 
-                    var page = new Page({ router: this.router, error: {} }, 'page');
+                    var page = new Page({
+                        router: this.router,
+                        error: {}
+                    }, 'page');
+                    
                     page.startup();
                 }
 
-                require(['kompakt/backend/page/error-page/ErrorPage'], lang.hitch(this, makePage));
+                require(['my/ErrorPage'], lang.hitch(this, makePage));
             },
 
             makeErrorPage: function(message) {
                 var makePage = function(Page) {
                     this.setPageNode();
 
-                    var page = new Page({ router: this.router, message: message }, 'page');
+                    var page = new Page({
+                        router: this.router,
+                        message: message
+                    }, 'page');
+                    
                     page.startup();
                 }
 
-                require(['sirprize/dojo-spa/page/error-page/ErrorPage'], lang.hitch(this, makePage));
+                require(['my/ErrorPage'], lang.hitch(this, makePage));
             }
         });
     });
@@ -60,9 +68,9 @@ The `_App` mixin is the entry point into your application. It dispatches the cur
 
 The `_Page` mixin has a simple set of methods to manipulate top level elements such as the page title and stylesheets. Those methods simply publish topics to which `_App` is subscribed to.
 
-## _Partial
+## _Widget
 
-Partials are child widgets of `_Page` and simplify the task of pushing to a new state by means of `partial.go(url)`
+Widgets are UI components placed in `_Page` and simplify the task of pushing to a new state by means of `widget.go(url)`
 
 ## License
 
