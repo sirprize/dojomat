@@ -93,11 +93,9 @@ define([
         setPageNode: function () {
             if (registry.byId('page')) {
                 registry.byId('page').destroyRecursive();
-
-                domConstruct.create("div", {
-                    id: 'page'
-                }, query('#page-box')[0]);
             }
+            
+            domConstruct.create('div', { id: 'page' }, query('body')[0], 'first');
         },
 
         handleState: debounce(function () {
