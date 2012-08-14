@@ -2,9 +2,9 @@
 /*global define: true */
 
 define([
-    "spirr/Request",
-    "spirr/Router",
-    "spirr/Route",
+    "routed/Request",
+    "routed/Router",
+    "routed/Route",
     "dijit/registry",
     "dojo/_base/declare",
     "dojo/_base/lang",
