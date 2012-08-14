@@ -15,6 +15,7 @@ define([
     "dojo/query",
     "dojo/topic",
     "dojo/dom-construct",
+    "./Notification",
     "dojo/domReady!"
 ], function (
     Request,
@@ -29,7 +30,8 @@ define([
     on,
     query,
     topic,
-    domConstruct
+    domConstruct,
+    Notification
 ) {
     "use strict";
 
@@ -62,6 +64,7 @@ define([
     return declare([], {
 
         router: new Router(),
+        notification: new Notification(),
         styleElement: null,
 
         init: function (map) {
@@ -132,21 +135,12 @@ define([
                 var page = new Page({
                     request: request,
                     router: this.router,
-                    notification: this.getNotification()
+                    notification: this.notification.get()
                 }, 'page');
+                
+                this.notification.clear();
                 page.startup();
             }));
-        },
-
-        getNotification: function () {
-            // todo: add expiration mechanism (eg 5 seconds)
-
-            if (has('native-localstorage')) {
-                return json.fromJson(localStorage.getItem('dojod-notification'));
-            }
-
-            // todo: cookie fallback
-            return null;
         },
 
         setSubscriptions: function () {
@@ -154,17 +148,13 @@ define([
                 this.setCss(args.css);
             }));
 
-            topic.subscribe('dojod/_Page/title', function (args) {
+            topic.subscribe('dojod/_Page/title', lang.hitch(this, function (args) {
                 window.document.title = args.title;
-            });
+            }));
 
-            topic.subscribe('dojod/_Page/notification', function (notification) {
-                if (has('native-localstorage')) {
-                    localStorage.setItem('dojod-notification', json.toJson(notification));
-                } //else {
-                    // todo: cookie fallback
-                //}
-            });
+            topic.subscribe('dojod/_Page/notification', lang.hitch(this, function (notification) {
+                this.notification.set(notification);
+            }));
 
             topic.subscribe('dojod/_Page/error', lang.hitch(this, function (error) {
                 this.makeErrorPage(error);
@@ -200,7 +190,6 @@ define([
             // Thanks has.js
             has.add('native-history-state', function (g) {
                 return g.history !== undefined && g.history.pushState !== undefined;
-                //return ("history" in g) && ("pushState" in history);
             });
         },
 
@@ -210,7 +199,6 @@ define([
                 var supported = false;
                 try {
                     supported = g.localStorage !== undefined && g.localStorage.setItem !== undefined;
-                    //supported = ("localStorage" in g) && ("setItem" in localStorage);
                 } catch (e) {}
                 return supported;
             });
