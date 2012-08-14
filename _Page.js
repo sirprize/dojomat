@@ -18,11 +18,11 @@ define([
         router: null,
         request: null,
 
-        setPageStyle: function (css) {
+        setCss: function (css) {
             topic.publish('dojod/_Page/css', { css: css });
         },
 
-        setPageTitle: function (title) {
+        setTitle: function (title) {
             topic.publish('dojod/_Page/title', { title: title });
         },
 

@@ -75,7 +75,7 @@ define([
             }));
         },
 
-        setStyle: function (css) {
+        setCss: function (css) {
             if (!this.styleElement) {
                 this.styleElement = window.document.createElement('style');
                 this.styleElement.setAttribute("type", "text/css");
@@ -151,7 +151,7 @@ define([
 
         setSubscriptions: function () {
             topic.subscribe('dojod/_Page/css', lang.hitch(this, function (args) {
-                this.setStyle(args.css);
+                this.setCss(args.css);
             }));
 
             topic.subscribe('dojod/_Page/title', function (args) {
