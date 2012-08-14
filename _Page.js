@@ -1,35 +1,40 @@
+/*jslint browser: true */
+/*global define: true */
+
 define([
     "dojo/_base/declare",
     "dojo/topic",
     "./_Partial"
-], function(
+], function (
     declare,
     topic,
     Partial
-) {    
+) {
+    "use strict";
+
     return declare([Partial], {
-        
+
         // constructor args
         router: null,
         request: null,
-        
-        setPageStyle: function(css) {
+
+        setPageStyle: function (css) {
             topic.publish('dojod/_Page/css', { css: css });
         },
-        
-        setPageTitle: function(title) {
+
+        setPageTitle: function (title) {
             topic.publish('dojod/_Page/title', { title: title });
         },
 
-        setNotification: function(message, type) {
+        setNotification: function (message, type) {
             topic.publish('dojod/_Page/notification', { message: message, type: type });
         },
-        
-        handleNotFound: function() {
+
+        handleNotFound: function () {
             topic.publish('dojod/_Page/not-found', {});
         },
-        
-        handleError: function(error) {
+
+        handleError: function (error) {
             topic.publish('dojod/_Page/error', error);
         }
     });

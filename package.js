@@ -1,4 +1,4 @@
-var profile = (function(){
+var profile = (function (){
 
     var miniExcludes = {
             "LICENSE": 1,
@@ -10,11 +10,11 @@ var profile = (function(){
 
     return {
         resourceTags: {
-            miniExclude: function(filename, moduleId) {
+            miniExclude: function (filename, moduleId) {
                 return moduleId in miniExcludes;
             },
 
-            amd: function(filename, moduleId) {
+            amd: function (filename, moduleId) {
                 return /\.js$/.test(filename);
             }
         }

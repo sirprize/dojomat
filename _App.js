@@ -1,3 +1,6 @@
+/*jslint browser: true */
+/*global define: true */
+
 define([
     "spirr/Request",
     "spirr/Router",
@@ -13,7 +16,7 @@ define([
     "dojo/topic",
     "dojo/dom-construct",
     "dojo/domReady!"
-], function(
+], function (
     Request,
     Router,
     Route,
@@ -28,20 +31,26 @@ define([
     topic,
     domConstruct
 ) {
+    "use strict";
+
     // http://underscorejs.org - _.debounce(function, wait, [immediate])
     // Returns a function, that, as long as it continues to be invoked, will not
     // be triggered. The function will be called after it stops being called for
     // N milliseconds. If `immediate` is passed, trigger the function on the
     // leading edge, instead of the trailing.
-    var debounce = function(func, wait, immediate) {
+    var debounce = function (func, wait, immediate) {
         var timeout;
-        return function() {
-            var context = this, args = arguments;
-            var later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
-            };
-            var callNow = immediate && !timeout;
+        return function () {
+            var context = this,
+                args = arguments,
+                later = function () {
+                    timeout = null;
+                    if (!immediate) {
+                        func.apply(context, args);
+                    }
+                },
+                callNow = immediate && !timeout;
+
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
             if (callNow) {
@@ -49,14 +58,14 @@ define([
             }
         };
     };
-    
+
     return declare([], {
-        
-        router: Router(),
+
+        router: new Router(),
         styleElement: null,
-        
-        init: function(map) {
-            ready(lang.hitch(this, function() {
+
+        init: function (map) {
+            ready(lang.hitch(this, function () {
                 this.setRoutes(map);
                 this.setSubscriptions();
                 this.handlePopState();
@@ -65,64 +74,63 @@ define([
                 this.handleState();
             }));
         },
-        
-        setStyle: function(css) {
-            if(!this.styleElement) {
-                this.styleElement = document.createElement('style');
+
+        setStyle: function (css) {
+            if (!this.styleElement) {
+                this.styleElement = window.document.createElement('style');
                 this.styleElement.setAttribute("type", "text/css");
                 query('head')[0].appendChild(this.styleElement);
             }
-        
-            if(this.styleElement.styleSheet) {
+
+            if (this.styleElement.styleSheet) {
                 this.styleElement.styleSheet.cssText = css; // IE
             } else {
                 this.styleElement.innerHTML = '';
-                this.styleElement.appendChild(document.createTextNode(css)); // the others
+                this.styleElement.appendChild(window.document.createTextNode(css)); // the others
             }
         },
-    
-        setPageNode: function() {
-            if(registry.byId('page')) {
+
+        setPageNode: function () {
+            if (registry.byId('page')) {
                 registry.byId('page').destroyRecursive();
-            
+
                 domConstruct.create("div", {
                     id: 'page'
                 }, query('#page-box')[0]);
             }
         },
 
-        handleState: debounce(function() {
-            var route = null, request = Request(window.location.href);
-        
+        handleState: debounce(function () {
+            var route = null, request = new Request(window.location.href);
+
             this.router.route(request);
             route = this.router.getCurrentRoute();
 
-            if(route) {
+            if (route) {
                 route.run(request);
-            }
-            else {
+            } else {
                 this.makeErrorPage({ message: 'No route found for ' + window.location.href });
             }
         }, 500, true),
-        
-        handlePopState: function() {
+
+        handlePopState: function () {
             on(window, 'popstate', lang.hitch(this, function (ev) {
                 this.handleState();
             }));
         },
-    
-        makeNotFoundPage: function() {
+
+        makeNotFoundPage: function () {
             // stub
         },
-        
-        makeErrorPage: function(error) {
+
+        makeErrorPage: function (error) {
             // stub
         },
-        
-        makePage: function(request, widget) {
-            require([widget], lang.hitch(this, function(Page) {
+
+        makePage: function (request, widget) {
+            require([widget], lang.hitch(this, function (Page) {
                 this.setPageNode();
-                
+
                 var page = new Page({
                     request: request,
                     router: this.router,
@@ -132,78 +140,80 @@ define([
             }));
         },
 
-        getNotification: function() {
+        getNotification: function () {
             // todo: add expiration mechanism (eg 5 seconds)
 
-            if(has('native-localstorage')) {
+            if (has('native-localstorage')) {
                 return json.fromJson(localStorage.getItem('dojod-notification'));
             }
-            else {
-                // todo: cookie fallback
-                return null;
-            }
+
+            // todo: cookie fallback
+            return null;
         },
-        
-        setSubscriptions: function() {
-            topic.subscribe('dojod/_Page/css', lang.hitch(this, function(args) {
+
+        setSubscriptions: function () {
+            topic.subscribe('dojod/_Page/css', lang.hitch(this, function (args) {
                 this.setStyle(args.css);
             }));
 
-            topic.subscribe('dojod/_Page/title', function(args) {
+            topic.subscribe('dojod/_Page/title', function (args) {
                 window.document.title = args.title;
             });
 
-            topic.subscribe('dojod/_Page/notification', function(notification) {
-                if(has('native-localstorage')) {
+            topic.subscribe('dojod/_Page/notification', function (notification) {
+                if (has('native-localstorage')) {
                     localStorage.setItem('dojod-notification', json.toJson(notification));
-                }
-                else {
+                } //else {
                     // todo: cookie fallback
-                }
+                //}
             });
 
-            topic.subscribe('dojod/_Page/error', lang.hitch(this, function(error) {
+            topic.subscribe('dojod/_Page/error', lang.hitch(this, function (error) {
                 this.makeErrorPage(error);
             }));
 
-            topic.subscribe('dojod/_Page/not-found', lang.hitch(this, function() {
+            topic.subscribe('dojod/_Page/not-found', lang.hitch(this, function () {
                 this.makeNotFoundPage();
             }));
 
-            topic.subscribe('dojod/_Partial/push-state', lang.hitch(this, function(args) {
+            topic.subscribe('dojod/_Partial/push-state', lang.hitch(this, function (args) {
                 history.pushState(args.state, args.title, args.url);
                 this.handleState();
             }));
         },
-        
-        setRoutes: function(map) {
-            var that = this;
-            
-            for(var name in map) {
-                var makeCallback = function(widgetClass) {
-                    return function(request) {
+
+        setRoutes: function (map) {
+            var that = this,
+                name = null,
+                makeCallback = function (widgetClass) {
+                    return function (request) {
                         that.makePage(request, widgetClass);
-                    }
+                    };
                 };
 
-                that.router.addRoute(name, Route(map[name].schema, makeCallback(map[name].widget)));
+            for (name in map) {
+                if (map.hasOwnProperty(name)) {
+                    that.router.addRoute(name, new Route(map[name].schema, makeCallback(map[name].widget)));
+                }
             }
         },
-        
-        setHasHistory: function() {
+
+        setHasHistory: function () {
             // Thanks has.js
-            has.add('native-history-state', function(g) {
-                return ("history" in g) && ("pushState" in history);
+            has.add('native-history-state', function (g) {
+                return g.history !== undefined && g.history.pushState !== undefined;
+                //return ("history" in g) && ("pushState" in history);
             });
         },
 
-        setHasLocalStorage: function() {
+        setHasLocalStorage: function () {
             // Thanks has.js
-            has.add('native-localstorage', function(g) {
+            has.add('native-localstorage', function (g) {
                 var supported = false;
-                try{
-                    supported = ("localStorage" in g) && ("setItem" in localStorage);
-                } catch(e){}
+                try {
+                    supported = g.localStorage !== undefined && g.localStorage.setItem !== undefined;
+                    //supported = ("localStorage" in g) && ("setItem" in localStorage);
+                } catch (e) {}
                 return supported;
             });
         }
