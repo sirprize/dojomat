@@ -18,25 +18,25 @@ define([
         id: 'dojod-notification',
         
         get: function () {
-            if (!has('native-localstorage')) {
+            if (has('native-localstorage')) {
                 return json.fromJson(localStorage.getItem(this.id));
             }
             return json.fromJson(cookie(this.id));
         },
 
         clear: function () {
-            if (!has('native-localstorage')) {
+            if (has('native-localstorage')) {
                 localStorage.removeItem(this.id);
             } else {
-                cookie(this.id, null, { expires: -1} );
+                cookie(this.id, null, { expires: -1, path: '/' });
             }
         },
 
         set: function (notification) {
-            if (!has('native-localstorage')) {
+            if (has('native-localstorage')) {
                 localStorage.setItem(this.id, json.toJson(notification));
             } else {
-                cookie(this.id, json.toJson(notification), { expires: 5 });
+                cookie(this.id, json.toJson(notification), { expires: 0, path: '/' });
             }
         }
     });
