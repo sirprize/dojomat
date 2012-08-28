@@ -127,11 +127,11 @@ define([
         makeErrorPage: function (error) {
             // stub
         },
-
-        makePage: function (request, widget) {
-            require([widget], lang.hitch(this, function (Page) {
+        
+        makePage: function (request, widget, loader) {
+            var makePage = function (Page) {
                 this.setPageNode();
-
+                
                 var page = new Page({
                     request: request,
                     router: this.router,
@@ -140,7 +140,16 @@ define([
                 
                 this.notification.clear();
                 page.startup();
-            }));
+            };
+            
+            if (loader) {
+                require([loader], lang.hitch(this, function (loader) {
+                    require([widget], lang.hitch(this, makePage));
+                }));
+            }
+            else {
+                require([widget], lang.hitch(this, makePage));
+            }
         },
 
         setSubscriptions: function () {
@@ -171,17 +180,16 @@ define([
         },
 
         setRoutes: function (map) {
-            var that = this,
-                name = null,
-                makeCallback = function (widgetClass) {
+            var name = null,
+                makeCallback = function (widgetClass, loader) {
                     return function (request) {
-                        that.makePage(request, widgetClass);
+                        this.makePage(request, widgetClass, loader);
                     };
                 };
 
             for (name in map) {
                 if (map.hasOwnProperty(name)) {
-                    that.router.addRoute(name, new Route(map[name].schema, makeCallback(map[name].widget)));
+                    this.router.addRoute(name, new Route(map[name].schema, lang.hitch(this, makeCallback(map[name].widget, map[name].loader))));
                 }
             }
         },
