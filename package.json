@@ -1,5 +1,5 @@
 {
-    "name": "dojod",
+    "name": "dispatched",
     "description": "Core components for single page apps based on the dojo widget architecture and history API",
     "version": 0.1,
     "dojoBuild": "package.js"

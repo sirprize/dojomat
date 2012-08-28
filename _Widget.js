@@ -24,7 +24,7 @@ define([
                 return;
             }
 
-            topic.publish('dojod/_Widget/push-state', {
+            topic.publish('dispatched/_Widget/push-state', {
                 state: {},
                 title: '',
                 url: url

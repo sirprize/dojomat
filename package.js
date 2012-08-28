@@ -2,8 +2,8 @@ var profile = (function (){
 
     var miniExcludes = {
             "LICENSE": 1,
-            "dojod/package": 1,
-            "dojod/package.json": 1,
+            "dispatched/package": 1,
+            "dispatched/package.json": 1,
             "readme.md": 1
         }
     ;

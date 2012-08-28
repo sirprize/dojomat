@@ -153,27 +153,27 @@ define([
         },
 
         setSubscriptions: function () {
-            topic.subscribe('dojod/_Page/css', lang.hitch(this, function (args) {
+            topic.subscribe('dispatched/_Page/css', lang.hitch(this, function (args) {
                 this.setCss(args.css);
             }));
 
-            topic.subscribe('dojod/_Page/title', lang.hitch(this, function (args) {
+            topic.subscribe('dispatched/_Page/title', lang.hitch(this, function (args) {
                 window.document.title = args.title;
             }));
 
-            topic.subscribe('dojod/_Page/notification', lang.hitch(this, function (notification) {
+            topic.subscribe('dispatched/_Page/notification', lang.hitch(this, function (notification) {
                 this.notification.set(notification);
             }));
 
-            topic.subscribe('dojod/_Page/error', lang.hitch(this, function (error) {
+            topic.subscribe('dispatched/_Page/error', lang.hitch(this, function (error) {
                 this.makeErrorPage(error);
             }));
 
-            topic.subscribe('dojod/_Page/not-found', lang.hitch(this, function () {
+            topic.subscribe('dispatched/_Page/not-found', lang.hitch(this, function () {
                 this.makeNotFoundPage();
             }));
 
-            topic.subscribe('dojod/_Widget/push-state', lang.hitch(this, function (args) {
+            topic.subscribe('dispatched/_Widget/push-state', lang.hitch(this, function (args) {
                 history.pushState(args.state, args.title, args.url);
                 this.handleState();
             }));

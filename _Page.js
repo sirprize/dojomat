@@ -19,23 +19,23 @@ define([
         request: null,
 
         setCss: function (css) {
-            topic.publish('dojod/_Page/css', { css: css });
+            topic.publish('dispatched/_Page/css', { css: css });
         },
 
         setTitle: function (title) {
-            topic.publish('dojod/_Page/title', { title: title });
+            topic.publish('dispatched/_Page/title', { title: title });
         },
 
         setNotification: function (message, type) {
-            topic.publish('dojod/_Page/notification', { message: message, type: type });
+            topic.publish('dispatched/_Page/notification', { message: message, type: type });
         },
 
         handleNotFound: function () {
-            topic.publish('dojod/_Page/not-found', {});
+            topic.publish('dispatched/_Page/not-found', {});
         },
 
         handleError: function (error) {
-            topic.publish('dojod/_Page/error', error);
+            topic.publish('dispatched/_Page/error', error);
         }
     });
 });
