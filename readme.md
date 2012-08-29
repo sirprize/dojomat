@@ -1,10 +1,10 @@
-# Dispatched
+# Dojomat
 
 Core components for single page apps based on the dojo widget architecture and history API
 
 ## Introduction
 
-Dispatched is a set of mixins providing a framework for single page apps based on the [History API](https://developer.mozilla.org/en/DOM/Manipulating_the_browser_history/) on top of the [Dojo widget](http://dojotoolkit.org/documentation/tutorials/1.7/templated/) architecture. Request routing is handled by [Routed](https://github.com/sirprize/routed). Currently there is no fallback behavior for hash-based routing but this probably wouldn't be too hard to implement - most likely, this functionality would go into _App.handleState() and _Widget.go()
+Dojomat is a set of mixins providing a framework for single page apps based on the [History API](https://developer.mozilla.org/en/DOM/Manipulating_the_browser_history/) on top of the [Dojo widget](http://dojotoolkit.org/documentation/tutorials/1.7/templated/) architecture. Request routing is handled by [Routed](https://github.com/sirprize/routed). Currently there is no fallback behavior for hash-based routing but this probably wouldn't be too hard to implement - most likely, this functionality would go into _App.handleState() and _Widget.go()
 
 ## _App
 
@@ -13,7 +13,7 @@ The `_App` mixin is the entry point into your application. It dispatches the cur
     define([
         "dojo/_base/declare",
         "dojo/_base/lang",
-        "dispatched/_App"
+        "dojomat/_App"
         "dojo/domReady!"
     ], function(
         declare,

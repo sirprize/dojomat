@@ -19,23 +19,23 @@ define([
         request: null,
 
         setCss: function (css) {
-            topic.publish('dispatched/_Page/css', { css: css });
+            topic.publish('dojomat/_Page/css', { css: css });
         },
 
         setTitle: function (title) {
-            topic.publish('dispatched/_Page/title', { title: title });
+            topic.publish('dojomat/_Page/title', { title: title });
         },
 
         setNotification: function (message, type) {
-            topic.publish('dispatched/_Page/notification', { message: message, type: type });
+            topic.publish('dojomat/_Page/notification', { message: message, type: type });
         },
 
         handleNotFound: function () {
-            topic.publish('dispatched/_Page/not-found', {});
+            topic.publish('dojomat/_Page/not-found', {});
         },
 
         handleError: function (error) {
-            topic.publish('dispatched/_Page/error', error);
+            topic.publish('dojomat/_Page/error', error);
         }
     });
 });

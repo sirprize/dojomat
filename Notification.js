@@ -15,7 +15,7 @@ define([
     "use strict";
 
     return declare([], {
-        id: 'dispatched-notification',
+        id: 'dojomat-notification',
         
         get: function () {
             if (has('native-localstorage')) {
