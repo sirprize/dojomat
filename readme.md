@@ -54,13 +54,17 @@ Here's how to build your own custom app:
         });
     });
 
-Note the call to `populateRouter` in the constructor of this widget - `populateRouter` is a utility function to populate the router from a simple routing map object. Instead of manually creating callback functions for all our routes, we pass it a map object and `populateRouter` dojomatically creates the callbacks for us.
+Note the call to `populateRouter` in the constructor - `populateRouter` is a utility function to populate the router from a simple routing map object. Instead of manually creating callback functions for all our routes, we pass it a map object and `populateRouter` dojomatically creates the callbacks for us, instantiates the route objects and registers them with the router. The resulting callback functions will instantiate top-level widgets based on the `widget` property in the routing map object. An object with the following properties is passed to the page-level constructor upon instantiation:
+
+    {
+        router: router, // instance of Routed/Router
+        request: request, // instance of Routed/Request
+        notification: { message: 'Well done!', type: 'ok' } // only if available - more info below
+    }
 
 ## _AppAware Mixin
 
-The `_AppAware` mixin has a small set of methods to facilitate page-level error handling and assists in the manipulation of top level things such as dynamically setting stylesheets.
-
-Here's a typical top-level page widget:
+The `_AppAware` mixin has a small set of methods to facilitate page-level error handling and assists in the manipulation of top level things such as dynamically setting stylesheets. Here's a typical top-level page widget:
 
     define([
         "dojo/_base/declare",
@@ -78,8 +82,6 @@ Here's a typical top-level page widget:
         css
     ) {
         return declare([WidgetBase, TemplatedMixin, AppAware], {
-            router: null,
-            request: null,
             templateString: template,
             
             postCreate: function () {
@@ -98,7 +100,7 @@ Here's a typical top-level page widget:
 
 ## _StateAware Mixin
 
-The `_StateAware` mixin simplifies the task of pushing to a new state. When clicked and if supported by the browser, the following widget will trigger a call to `history.pushState()`. If the history API is not supported, the requested URL is set to `window.location` which causes the browser to request the URL from the server.
+The `_StateAware` mixin simplifies the task of pushing to a new state. When clicked and if supported by the browser, the following widget will trigger `history.pushState()` by calling `this.push(url)`. If the history API is not supported, the requested URL is set to `window.location` which causes the browser to request the URL from the server.
 
     define([
         "dojo/_base/declare",
