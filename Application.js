@@ -56,14 +56,14 @@ define([
         },
         
         // Thanks has.js
-        setHasHistory = function () {
+        registerHasHistory = function () {
             has.add('native-history-state', function (g) {
                 return g.history !== undefined && g.history.pushState !== undefined;
             });
         },
         
         // Thanks has.js
-        setHasLocalStorage = function () {
+        registerHasLocalStorage = function () {
             has.add('native-localstorage', function (g) {
                 var supported = false;
                 try {
@@ -81,8 +81,8 @@ define([
         pageNodeId: 'page',
 
         run: function () {
-            setHasHistory();
-            setHasLocalStorage();
+            registerHasHistory();
+            registerHasLocalStorage();
             this.setSubscriptions();
             this.registerPopState();
             this.handleState();
@@ -184,9 +184,18 @@ define([
             }));
 
             topic.subscribe('dojomat/_StateAware/push-state', lang.hitch(this, function (args) {
-                history.pushState(args.state, args.title, args.url);
-                this.handleState();
+                this.pushState(args);
             }));
+        },
+        
+        pushState: function (args) {
+            if (!has('native-history-state')) {
+                window.location = args.url;
+                return;
+            }
+            
+            history.pushState({}, '', args.url);
+            this.handleState();
         }
     });
 });

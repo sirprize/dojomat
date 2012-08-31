@@ -36,7 +36,7 @@ define([
             if (has('native-localstorage') && has('native-history-state')) {
                 localStorage.setItem(this.id, json.toJson(notification));
             } else {
-                cookie(this.id, json.toJson(notification), { expires: 0, path: '/' });
+                cookie(this.id, json.toJson(notification), { expires: 1, path: '/' });
             }
         }
     });
