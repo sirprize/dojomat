@@ -1,6 +1,6 @@
 {
     "name": "dojomat",
-    "description": "Core components for single page apps based on the dojo widget architecture and history API",
+    "description": "Application controller for single page applications based on the Dojo widget architecture and History API",
     "version": 0.1,
     "dojoBuild": "package.js"
 }
