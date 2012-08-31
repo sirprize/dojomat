@@ -4,12 +4,9 @@
 define([
     "routed/Request",
     "routed/Router",
-    "routed/Route",
     "dijit/registry",
     "dojo/_base/declare",
     "dojo/_base/lang",
-    "dojo/_base/json",
-    "dojo/ready",
     "dojo/has",
     "dojo/on",
     "dojo/query",
@@ -20,12 +17,9 @@ define([
 ], function (
     Request,
     Router,
-    Route,
     registry,
     declare,
     lang,
-    json,
-    ready,
     has,
     on,
     query,
@@ -41,41 +35,57 @@ define([
     // N milliseconds. If `immediate` is passed, trigger the function on the
     // leading edge, instead of the trailing.
     var debounce = function (func, wait, immediate) {
-        var timeout;
-        return function () {
-            var context = this,
-                args = arguments,
-                later = function () {
-                    timeout = null;
-                    if (!immediate) {
-                        func.apply(context, args);
-                    }
-                },
-                callNow = immediate && !timeout;
+            var timeout;
+            return function () {
+                var context = this,
+                    args = arguments,
+                    later = function () {
+                        timeout = null;
+                        if (!immediate) {
+                            func.apply(context, args);
+                        }
+                    },
+                    callNow = immediate && !timeout;
 
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) {
-                func.apply(context, args);
-            }
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) {
+                    func.apply(context, args);
+                }
+            };
+        },
+        
+        // Thanks has.js
+        setHasHistory = function () {
+            has.add('native-history-state', function (g) {
+                return g.history !== undefined && g.history.pushState !== undefined;
+            });
+        },
+        
+        // Thanks has.js
+        setHasLocalStorage = function () {
+            has.add('native-localstorage', function (g) {
+                var supported = false;
+                try {
+                    supported = g.localStorage !== undefined && g.localStorage.setItem !== undefined;
+                } catch (e) {}
+                return supported;
+            });
         };
-    };
 
     return declare([], {
 
         router: new Router(),
         notification: new Notification(),
         styleElement: null,
+        pageNodeId: 'page',
 
-        init: function (map) {
-            ready(lang.hitch(this, function () {
-                this.setRoutes(map);
-                this.setSubscriptions();
-                this.handlePopState();
-                this.setHasHistory();
-                this.setHasLocalStorage();
-                this.handleState();
-            }));
+        run: function () {
+            setHasHistory();
+            setHasLocalStorage();
+            this.setSubscriptions();
+            this.registerPopState();
+            this.handleState();
         },
 
         setCss: function (css) {
@@ -94,11 +104,11 @@ define([
         },
 
         setPageNode: function () {
-            if (registry.byId('page')) {
-                registry.byId('page').destroyRecursive();
+            if (registry.byId(this.pageNodeId)) {
+                registry.byId(this.pageNodeId).destroyRecursive();
             }
             
-            domConstruct.create('div', { id: 'page' }, query('body')[0], 'first');
+            domConstruct.create('div', { id: this.pageNodeId }, query('body')[0], 'first');
         },
 
         handleState: debounce(function () {
@@ -110,22 +120,14 @@ define([
             if (route) {
                 route.run(request);
             } else {
-                this.makeErrorPage({ message: 'No route found for ' + window.location.href });
+                this.makeNotFoundPage();
             }
         }, 500, true),
 
-        handlePopState: function () {
+        registerPopState: function () {
             on(window, 'popstate', lang.hitch(this, function (ev) {
                 this.handleState();
             }));
-        },
-
-        makeNotFoundPage: function () {
-            // stub
-        },
-
-        makeErrorPage: function (error) {
-            // stub
         },
         
         makePage: function (request, widget, loader) {
@@ -136,7 +138,7 @@ define([
                     request: request,
                     router: this.router,
                     notification: this.notification.get()
-                }, 'page');
+                }, this.pageNodeId);
                 
                 this.notification.clear();
                 page.startup();
@@ -151,65 +153,40 @@ define([
                 require([widget], lang.hitch(this, makePage));
             }
         },
+        
+        makeNotFoundPage: function () {
+            alert('Page not found');
+        },
+
+        makeErrorPage: function (error) {
+            alert('An error has occured');
+        },
 
         setSubscriptions: function () {
-            topic.subscribe('dojomat/_Page/css', lang.hitch(this, function (args) {
+            topic.subscribe('dojomat/_AppAware/css', lang.hitch(this, function (args) {
                 this.setCss(args.css);
             }));
 
-            topic.subscribe('dojomat/_Page/title', lang.hitch(this, function (args) {
+            topic.subscribe('dojomat/_AppAware/title', lang.hitch(this, function (args) {
                 window.document.title = args.title;
             }));
 
-            topic.subscribe('dojomat/_Page/notification', lang.hitch(this, function (notification) {
+            topic.subscribe('dojomat/_AppAware/notification', lang.hitch(this, function (notification) {
                 this.notification.set(notification);
             }));
 
-            topic.subscribe('dojomat/_Page/error', lang.hitch(this, function (error) {
+            topic.subscribe('dojomat/_AppAware/error', lang.hitch(this, function (error) {
                 this.makeErrorPage(error);
             }));
 
-            topic.subscribe('dojomat/_Page/not-found', lang.hitch(this, function () {
+            topic.subscribe('dojomat/_AppAware/not-found', lang.hitch(this, function () {
                 this.makeNotFoundPage();
             }));
 
-            topic.subscribe('dojomat/_Widget/push-state', lang.hitch(this, function (args) {
+            topic.subscribe('dojomat/_StateAware/push-state', lang.hitch(this, function (args) {
                 history.pushState(args.state, args.title, args.url);
                 this.handleState();
             }));
-        },
-
-        setRoutes: function (map) {
-            var name = null,
-                makeCallback = function (widgetClass, loader) {
-                    return function (request) {
-                        this.makePage(request, widgetClass, loader);
-                    };
-                };
-
-            for (name in map) {
-                if (map.hasOwnProperty(name)) {
-                    this.router.addRoute(name, new Route(map[name].schema, lang.hitch(this, makeCallback(map[name].widget, map[name].loader))));
-                }
-            }
-        },
-
-        setHasHistory: function () {
-            // Thanks has.js
-            has.add('native-history-state', function (g) {
-                return g.history !== undefined && g.history.pushState !== undefined;
-            });
-        },
-
-        setHasLocalStorage: function () {
-            // Thanks has.js
-            has.add('native-localstorage', function (g) {
-                var supported = false;
-                try {
-                    supported = g.localStorage !== undefined && g.localStorage.setItem !== undefined;
-                } catch (e) {}
-                return supported;
-            });
         }
     });
 });

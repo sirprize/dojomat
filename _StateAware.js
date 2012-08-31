@@ -4,27 +4,23 @@
 define([
     "dojo/_base/declare",
     "dojo/has",
-    "dojo/topic",
-    "dijit/_WidgetBase",
-    "dijit/_TemplatedMixin"
+    "dojo/topic"
 ], function (
     declare,
     has,
-    topic,
-    WidgetBase,
-    TemplatedMixin
+    topic
 ) {
     "use strict";
 
-    return declare([WidgetBase, TemplatedMixin], {
+    return declare([], {
 
-        go: function (url) {
+        push: function (url) {
             if (!has('native-history-state')) {
                 window.location = url;
                 return;
             }
 
-            topic.publish('dojomat/_Widget/push-state', {
+            topic.publish('dojomat/_StateAware/push-state', {
                 state: {},
                 title: '',
                 url: url
