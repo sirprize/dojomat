@@ -12,15 +12,28 @@ define([
     
     return function (application, map) {
         var name = null,
-            makeCallback = function (widgetClass, loader) {
+            makeCallback = function (widgetClass, loader, stylesheets) {
                 return function (request) {
-                    application.makePage(request, widgetClass, loader);
+                    application.makePage(request, widgetClass, loader, stylesheets);
                 };
             };
 
         for (name in map) {
             if (map.hasOwnProperty(name)) {
-                application.router.addRoute(name, new Route(map[name].schema, lang.hitch(application, makeCallback(map[name].widget, map[name].loader))));
+                application.router.addRoute(
+                    name,
+                    new Route(
+                        map[name].schema,
+                        lang.hitch(
+                            application,
+                            makeCallback(
+                                map[name].widget,
+                                map[name].loader,
+                                map[name].stylesheets
+                            )
+                        )
+                    )
+                );
             }
         }
     };

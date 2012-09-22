@@ -6,6 +6,7 @@ define([
     "routed/Router",
     "dijit/registry",
     "dojo/_base/declare",
+    "dojo/_base/array",
     "dojo/_base/lang",
     "dojo/has",
     "dojo/on",
@@ -19,6 +20,7 @@ define([
     Router,
     registry,
     declare,
+    array,
     lang,
     has,
     on,
@@ -77,7 +79,8 @@ define([
 
         router: new Router(),
         notification: new Notification(),
-        styleElement: null,
+        stylesheetNodes: [],
+        cssNode: null,
         pageNodeId: 'page',
 
         run: function () {
@@ -87,28 +90,85 @@ define([
             this.registerPopState();
             this.handleState();
         },
+        
+        setStylesheets: function (stylesheets) {
+            var addStylesheet = function (stylesheetNodes, stylesheet) {
+                var tag = null,
+                    attributes = null,
+                    refNode = null,
+                    position = null,
+                    sn = query('head link[rel=stylesheet]');
 
-        setCss: function (css) {
-            if (!this.styleElement) {
-                this.styleElement = window.document.createElement('style');
-                this.styleElement.setAttribute("type", "text/css");
-                query('head')[0].appendChild(this.styleElement);
-            }
+                if (!stylesheet || !stylesheet.href) {
+                    return;
+                }
 
-            if (this.styleElement.styleSheet) {
-                this.styleElement.styleSheet.cssText = css; // IE
+                if (sn.length) {
+                    // place it after the last <link rel="stylesheet">
+                    refNode = sn[sn.length - 1];
+                    position = 'after';
+                } else {
+                    // place it before the first <script>
+                    refNode = query('head script')[0];
+                    position = 'before';
+                }
+
+                attributes = {
+                    rel: 'stylesheet',
+                    media: stylesheet.media || 'all',
+                    href: stylesheet.href
+                };
+
+                stylesheetNodes[stylesheetNodes.length] = domConstruct.create('link', attributes, refNode, position);
+            };
+            
+            array.forEach(this.stylesheetNodes, function (node) {
+                domConstruct.destroy(node);
+            });
+            
+            this.stylesheetNodes  = [];
+            
+            if (stylesheets && stylesheets.length) {
+                array.forEach(stylesheets, lang.hitch(this, function (stylesheet) {
+                    addStylesheet(this.stylesheetNodes, stylesheet);
+                }));
             } else {
-                this.styleElement.innerHTML = '';
-                this.styleElement.appendChild(window.document.createTextNode(css)); // the others
+                addStylesheet(this.stylesheetNodes, stylesheets);
+            }
+        },
+
+        setCss: function (css, media) {
+            var css = css || '',
+                tag = 'style',
+                attributes = { media: media || 'all' },
+                refNode = query('head script')[0],
+                position = 'before';
+                
+            if (this.cssNode) {
+                domConstruct.destroy(this.cssNode);
+            }
+            
+            // place it before the first <script>
+            this.cssNode = domConstruct.create(tag, attributes, refNode, position);
+
+            if (this.cssNode.styleSheet) {
+                this.cssNode.styleSheet.cssText = css; // IE
+            } else {
+                this.cssNode.innerHTML = css; // the others
             }
         },
 
         setPageNode: function () {
+            var tag = 'div',
+                attributes = { id: this.pageNodeId },
+                refNode = query('body')[0],
+                position = 'last';
+                
             if (registry.byId(this.pageNodeId)) {
                 registry.byId(this.pageNodeId).destroyRecursive();
             }
             
-            domConstruct.create('div', { id: this.pageNodeId }, query('body')[0], 'first');
+            domConstruct.create(tag, attributes, refNode, position);
         },
 
         handleState: debounce(function () {
@@ -130,8 +190,10 @@ define([
             }));
         },
         
-        makePage: function (request, widget, loader) {
+        makePage: function (request, widget, loader, stylesheets) {
             var makePage = function (Page) {
+                this.setStylesheets(stylesheets);
+                this.setCss();
                 this.setPageNode();
                 
                 var page = new Page({
@@ -164,7 +226,11 @@ define([
 
         setSubscriptions: function () {
             topic.subscribe('dojomat/_AppAware/css', lang.hitch(this, function (args) {
-                this.setCss(args.css);
+                this.setCss(args.css, args.media);
+            }));
+            
+            topic.subscribe('dojomat/_AppAware/stylesheets', lang.hitch(this, function (stylesheets) {
+                this.setStylesheets(stylesheets);
             }));
 
             topic.subscribe('dojomat/_AppAware/title', lang.hitch(this, function (args) {

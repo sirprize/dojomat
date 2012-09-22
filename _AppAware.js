@@ -11,8 +11,12 @@ define([
     "use strict";
 
     return declare([], {
-        setCss: function (css) {
-            topic.publish('dojomat/_AppAware/css', { css: css });
+        setStylesheets: function (stylesheets) {
+            topic.publish('dojomat/_AppAware/stylesheets', stylesheets);
+        },
+        
+        setCss: function (css, media) {
+            topic.publish('dojomat/_AppAware/css', { css: css, media: media });
         },
 
         setTitle: function (title) {
