@@ -68,8 +68,8 @@ The `_AppAware` mixin has a small set of methods to facilitate page-level error 
 
     define([
         "dojo/_base/declare",
-        "dijit/_WidgetBase",
-        "dijit/_TemplatedMixin",
+        "mijit/_WidgetBase", // github.com/sirprize/mijit
+        "mijit/_TemplatedMixin", // github.com/sirprize/mijit
         "dojomat/_AppAware",
         "dojo/text!./templates/HomePage.html",
         "dojo/text!./css/HomePage.css"
@@ -104,8 +104,8 @@ The `_StateAware` mixin simplifies the task of pushing to a new state. When clic
 
     define([
         "dojo/_base/declare",
-        "dijit/_WidgetBase",
-        "dijit/_TemplatedMixin",
+        "mijit/_WidgetBase", // github.com/sirprize/mijit
+        "mijit/_TemplatedMixin", // github.com/sirprize/mijit
         "dojomat/_StateAware",
         "dojo/_base/lang",
         "dojo/on",

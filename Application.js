@@ -4,7 +4,7 @@
 define([
     "routed/Request",
     "routed/Router",
-    "dijit/registry",
+    "mijit/registry",
     "dojo/_base/declare",
     "dojo/_base/array",
     "dojo/_base/lang",
