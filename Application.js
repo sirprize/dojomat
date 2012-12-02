@@ -190,7 +190,7 @@ define([
             }));
         },
         
-        makePage: function (request, widget, loader, stylesheets) {
+        makePage: function (request, widget, layers, stylesheets) {
             var makePage = function (Page) {
                 this.setStylesheets(stylesheets);
                 this.setCss();
@@ -206,8 +206,8 @@ define([
                 page.startup();
             };
             
-            if (loader) {
-                require([loader], lang.hitch(this, function (loader) {
+            if (layers.length) {
+                require(layers, lang.hitch(this, function () {
                     require([widget], lang.hitch(this, makePage));
                 }));
             }

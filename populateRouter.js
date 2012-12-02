@@ -12,9 +12,9 @@ define([
     
     return function (application, map) {
         var name = null,
-            makeCallback = function (widgetClass, loader, stylesheets) {
+            makeCallback = function (widgetClass, layers, stylesheets) {
                 return function (request) {
-                    application.makePage(request, widgetClass, loader, stylesheets);
+                    application.makePage(request, widgetClass, layers, stylesheets);
                 };
             };
 
@@ -28,7 +28,7 @@ define([
                             application,
                             makeCallback(
                                 map[name].widget,
-                                map[name].loader,
+                                map[name].layers || [],
                                 map[name].stylesheets
                             )
                         )
