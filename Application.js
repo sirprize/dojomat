@@ -85,6 +85,7 @@ define([
         stylesheetNodes: [],
         cssNode: null,
         pageNodeId: 'page',
+        refNode: query('body')[0],
 
         run: function () {
             registerHasHistory();
@@ -164,7 +165,7 @@ define([
         setPageNode: function () {
             var tag = 'div',
                 attributes = { id: this.pageNodeId },
-                refNode = query('body')[0],
+                refNode = this.refNode,
                 position = 'last';
                 
             if (registry.byId(this.pageNodeId)) {
