@@ -79,6 +79,7 @@ define([
 
     return declare([], {
 
+        lastRequest: null,
         router: new Router(),
         session: new Session(),
         notification: new Notification(),
@@ -177,6 +178,12 @@ define([
         handleState: debounce(function () {
             var route = null, request = new Request(window.location.href);
 
+            if (this.lastRequest && this.lastRequest.isSame(window.location.href)) {
+                // re-requesting url or hash update - don't reload page
+                return;
+            }
+
+            this.lastRequest = request;
             this.router.route(request);
             route = this.router.getCurrentRoute();
 
