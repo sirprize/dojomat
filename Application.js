@@ -87,6 +87,10 @@ define([
         pageNodeId: 'page',
         refNode: null,
 
+        constructor: function(args) {
+            lang.mixin(this, args);
+        },
+
         run: function () {
             registerHasHistory();
             registerHasLocalStorage();
