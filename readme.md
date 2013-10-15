@@ -161,6 +161,16 @@ Dojomat tests for the availability of the history API and `LocalStorage` and reg
 + `native-history-state`
 + `native-localstorage`
 
+## Running The Application
+
+    <div id="my-page"></div>
+        
+    <script>
+        require(['my/App'], function (App) {
+            new App({}, 'my-page');
+        });
+    </script>
+
 ## License
 
 See LICENSE.

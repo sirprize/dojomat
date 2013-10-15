@@ -6,10 +6,10 @@ define([
     "routed/Router",
     "dojo/has!dijit?dijit/registry:mijit/registry",
     "dojo/_base/declare",
-    "dojo/_base/array",
     "dojo/_base/lang",
     "dojo/has",
     "dojo/on",
+    "dojo/dom",
     "dojo/query",
     "dojo/topic",
     "dojo/dom-construct",
@@ -21,10 +21,10 @@ define([
     Router,
     registry,
     declare,
-    array,
     lang,
     has,
     on,
+    dom,
     query,
     topic,
     domConstruct,
@@ -84,11 +84,11 @@ define([
         session: new Session(),
         notification: new Notification(),
         cssNodes: {},
-        pageNodeId: 'page',
-        refNode: null,
+        domNode: null,
 
-        constructor: function(args) {
-            lang.mixin(this, args);
+        constructor: function(params, domNodeOrId) {
+            lang.mixin(this, params);
+            this.domNode = dom.byId(domNodeOrId);
         },
 
         run: function () {
@@ -130,17 +130,21 @@ define([
             }
         },
 
-        setPageNode: function () {
-            var tag = 'div',
-                attributes = { id: this.pageNodeId },
-                refNode = this.refNode || query('body')[0],
-                position = 'last';
-                
-            if (registry.byId(this.pageNodeId)) {
-                registry.byId(this.pageNodeId).destroyRecursive();
+        prepareDomNode: function () {
+            var newDomNode, domNodeId = this.domNode.id;
+
+            if (registry.byId(domNodeId)) {
+                newDomNode = domConstruct.create(
+                    'div',
+                    { id: 'new-dojomat-' + domNodeId + '-node' },
+                    registry.byId(domNodeId).domNode,
+                    'after'
+                );
+
+                registry.byId(domNodeId).destroyRecursive();
+                this.domNode = newDomNode;
+                this.domNode.id = domNodeId;
             }
-            
-            domConstruct.create(tag, attributes, refNode, position);
         },
 
         handleState: debounce(function () {
@@ -171,14 +175,14 @@ define([
         makePage: function (request, widget, layers) {
             var makePage = function (Page) {
                 this.clearCss();
-                this.setPageNode();
+                this.prepareDomNode();
                 
                 var page = new Page({
                     request: request,
                     router: this.router,
                     session: this.session,
                     notification: this.notification.get()
-                }, this.pageNodeId);
+                }, this.domNode);
                 
                 this.notification.clear();
                 page.startup();
