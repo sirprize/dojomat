@@ -83,7 +83,7 @@ define([
         router: new Router(),
         session: new Session(),
         notification: new Notification(),
-        cssNode: null,
+        cssNodes: {},
         pageNodeId: 'page',
         refNode: null,
 
@@ -98,13 +98,24 @@ define([
             this.registerPopState();
             this.handleState();
         },
+
+        clearCss: function () {
+            var media;
+
+            for (media in this.cssNodes) {
+                if (this.cssNodes.hasOwnProperty(media)) {
+                    domConstruct.destroy(this.cssNodes[media]);
+                }
+            }
+
+            this.cssNodes = {};
+        },
         
         setCss: function (css, media) {
             var css = css || '', media = media || 'all';
-                
-            if (!this.cssNode) {
-                // place a <style> element before </head>
-                this.cssNode = domConstruct.create(
+
+            if (!this.cssNodes[media]) {
+                this.cssNodes[media] = domConstruct.create(
                     'style',
                     { media: media },
                     query('head')[0],
@@ -112,10 +123,10 @@ define([
                 );
             }
 
-            if (this.cssNode.styleSheet) {
-                this.cssNode.styleSheet.cssText = css; // IE
+            if (this.cssNodes[media].styleSheet) {
+                this.cssNodes[media].styleSheet.cssText = css; // IE
             } else {
-                this.cssNode.innerHTML = css; // the others
+                this.cssNodes[media].innerHTML = css; // the others
             }
         },
 
@@ -159,7 +170,7 @@ define([
         
         makePage: function (request, widget, layers) {
             var makePage = function (Page) {
-                this.setCss();
+                this.clearCss();
                 this.setPageNode();
                 
                 var page = new Page({
