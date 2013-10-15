@@ -83,7 +83,6 @@ define([
         router: new Router(),
         session: new Session(),
         notification: new Notification(),
-        stylesheetNodes: [],
         cssNode: null,
         pageNodeId: 'page',
         refNode: null,
@@ -100,65 +99,18 @@ define([
             this.handleState();
         },
         
-        setStylesheets: function (stylesheets) {
-            var addStylesheet = function (stylesheetNodes, stylesheet) {
-                var tag = null,
-                    attributes = null,
-                    refNode = null,
-                    position = null,
-                    sn = query('head link[rel=stylesheet]');
-
-                if (!stylesheet || !stylesheet.href) {
-                    return;
-                }
-
-                if (sn.length) {
-                    // place it after the last <link rel="stylesheet">
-                    refNode = sn[sn.length - 1];
-                    position = 'after';
-                } else {
-                    // place it before the first <script>
-                    refNode = query('head script')[0];
-                    position = 'before';
-                }
-
-                attributes = {
-                    rel: 'stylesheet',
-                    media: stylesheet.media || 'all',
-                    href: stylesheet.href
-                };
-
-                stylesheetNodes[stylesheetNodes.length] = domConstruct.create('link', attributes, refNode, position);
-            };
-            
-            array.forEach(this.stylesheetNodes, function (node) {
-                domConstruct.destroy(node);
-            });
-            
-            this.stylesheetNodes  = [];
-            
-            if (stylesheets && stylesheets.length) {
-                array.forEach(stylesheets, lang.hitch(this, function (stylesheet) {
-                    addStylesheet(this.stylesheetNodes, stylesheet);
-                }));
-            } else {
-                addStylesheet(this.stylesheetNodes, stylesheets);
-            }
-        },
-
         setCss: function (css, media) {
-            var css = css || '',
-                tag = 'style',
-                attributes = { media: media || 'all' },
-                refNode = query('head script')[0],
-                position = 'before';
+            var css = css || '', media = media || 'all';
                 
-            if (this.cssNode) {
-                domConstruct.destroy(this.cssNode);
+            if (!this.cssNode) {
+                // place a <style> element before </head>
+                this.cssNode = domConstruct.create(
+                    'style',
+                    { media: media },
+                    query('head')[0],
+                    'last'
+                );
             }
-            
-            // place it before the first <script>
-            this.cssNode = domConstruct.create(tag, attributes, refNode, position);
 
             if (this.cssNode.styleSheet) {
                 this.cssNode.styleSheet.cssText = css; // IE
@@ -205,9 +157,8 @@ define([
             }));
         },
         
-        makePage: function (request, widget, layers, stylesheets) {
+        makePage: function (request, widget, layers) {
             var makePage = function (Page) {
-                this.setStylesheets(stylesheets);
                 this.setCss();
                 this.setPageNode();
                 
@@ -243,10 +194,6 @@ define([
         setSubscriptions: function () {
             topic.subscribe('dojomat/_AppAware/css', lang.hitch(this, function (args) {
                 this.setCss(args.css, args.media);
-            }));
-            
-            topic.subscribe('dojomat/_AppAware/stylesheets', lang.hitch(this, function (stylesheets) {
-                this.setStylesheets(stylesheets);
             }));
 
             topic.subscribe('dojomat/_AppAware/title', lang.hitch(this, function (args) {
