@@ -164,7 +164,7 @@ define([
             } else {
                 this.makeNotFoundPage();
             }
-        }, 500, true),
+        }, 0, true),
 
         registerPopState: function () {
             on(window, 'popstate', lang.hitch(this, function (ev) {
